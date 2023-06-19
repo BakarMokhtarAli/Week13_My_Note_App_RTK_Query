@@ -1,39 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { useSelector, useDispatch } from "react-redux";
-import { editNote, fetchNotes } from "../store/api/NoteSlice";
-import { useParams } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useFetchBooksQuery, useEditNoteMutation } from '../store/NoteSlice';
+import { useNavigate, useParams } from 'react-router-dom';
+
 
 const EditNote = () => {
-
-  const dispatch = useDispatch();
+  const [ current, setCurrent ] = useState({});
   const params = useParams();
+  
+  const initialValues = {
+    title: current.title,
+    content: current.content
+    
+  };
+
+  const [ editNote ] = useEditNoteMutation();
+  const { data: allNote } = useFetchBooksQuery();
+  
+
   const navigate = useNavigate();
 
-  const [initialValues, setInitialValues] = useState({
-    title: '',
-    content: '',
-  });
-
-  const allNotes = useSelector((state) => state.notes.notes);
-
   useEffect(() => {
-    dispatch(fetchNotes());
-  }, [dispatch]);
-  
-  useEffect(() => {
-    const note = allNotes.find((note) => note.id === Number(params.id));
-    if (note) {
-      setInitialValues({
-        title: note.title,
-        content: note.content,
-      });
+    if (allNote && allNote.length > 0){
+      const notes = allNote.find((note) => note.id === Number(params.id));
+      if (notes) {
+        setCurrent(notes);
+        }
     }
-  }, [allNotes, params.id]);
 
-
+  }, [allNote, params.id]);
 
   const validationSchema = Yup.object({
     title: Yup.string().required('Title is required'),
@@ -41,22 +37,23 @@ const EditNote = () => {
   });
 
   const handleSubmit = (values) => {
- 
-    dispatch(editNote({
-      noteId: Number(params.id),
-      updateNote: values,
-    })).then(() => {
-      navigate('/');
-    });
+  editNote({
+    noteId: params.id,
+    updatedNote: values
+  })
+  .unwrap()
+  .then(()=>{
+    navigate("/")
+  })
   };
 
   return (
     <div className="bg-white p-10 rounded-lg shadow md:w-3/4 mx-auto lg:w-1/2">
       <Formik
+        enableReinitialize
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
-        enableReinitialize
       >
         <Form>
           <div className="mb-5">

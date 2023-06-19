@@ -1,38 +1,38 @@
 import React from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { useDispatch } from "react-redux";
-import { addNote } from "../store/api/NoteSlice";
+import { useNavigate } from 'react-router-dom';
+import { useAddNoteMutation } from '../store/NoteSlice';
 
-const AddNote = (props) => {
-
-  const dispatch = useDispatch();
-
+const AddNote = () => {
   const initialValues = {
     title: '',
     content: '',
   };
+
+  const [ addNote]  = useAddNoteMutation();
+  
 
   const validationSchema = Yup.object({
     title: Yup.string().required('Title is required'),
     content: Yup.string().required('Content is required'),
   });
 
-  const handleSubmit = (values, { resetForm }) => {
-    // Send the data to the server (localhost:9000/create_note)
-    dispatch(addNote({
-      title: values.title,
-      content: values.content,
-    }));
-    
+  const navigate = useNavigate();
 
-    // Reset the form after submission
-    resetForm();
+  const handleSubmit = (values) => {
+    addNote(values)
+    // .unwrap.
+    // then(()=>{
+    //   navigate("/")
+    // })
+    
   };
 
   return (
     <div className="bg-white p-10 rounded-lg shadow md:w-3/4 mx-auto lg:w-1/2">
       <Formik
+        enableReinitialize
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
