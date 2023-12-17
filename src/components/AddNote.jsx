@@ -1,33 +1,31 @@
 import React from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form, Field, ErrorMessage, yupToFormErrors } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
-import { useAddNoteMutation } from '../store/NoteSlice';
+import { useAddNoteMutation } from './Store/api/NoteSlice';
+
 
 const AddNote = () => {
-  const initialValues = {
-    title: '',
-    content: '',
-  };
 
-  const [ addNote]  = useAddNoteMutation();
-  
+  const [ addNote ] = useAddNoteMutation()
+ 
+  let initialValues= {
+      title: "",
+      content: ""
+  }
 
+  const navigate= useNavigate()
   const validationSchema = Yup.object({
-    title: Yup.string().required('Title is required'),
-    content: Yup.string().required('Content is required'),
-  });
-
-  const navigate = useNavigate();
+    title: Yup.string().required("title is required"),
+    content: Yup.string().required("content is required")
+  })
 
   const handleSubmit = (values) => {
-    addNote(values)
-    // .unwrap.
-    // then(()=>{
-    //   navigate("/")
-    // })
-    
-  };
+      addNote(values).unwrap().then(()=>{
+        window.location.reload()
+      })
+      
+  }
 
   return (
     <div className="bg-white p-10 rounded-lg shadow md:w-3/4 mx-auto lg:w-1/2">

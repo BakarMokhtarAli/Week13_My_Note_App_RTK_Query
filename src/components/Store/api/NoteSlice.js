@@ -1,9 +1,9 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 
 const BASE_URL = "http://localhost:9000";
 
-export const noteSlice = createApi({
+export const NoteSlice = createApi({
     reducerPath: "note",
     baseQuery: fetchBaseQuery({
       baseUrl: BASE_URL,
@@ -12,18 +12,19 @@ export const noteSlice = createApi({
     endpoints: (builder) => ({
 
         // Fetch Notes
-        fetchBooks: builder.query({
+        fetcNotes: builder.query({
           query: () => {
             return {
-              url: "notes",
+              url: "/notes",
               method: "GET",
             };
           },
           providesTags: ["notes"]
         }),
+
         addNote: builder.mutation({
             query: (newNote) =>({
-                url: "create_note",
+                url: "/create_note",
                 method: "POST",
                 body: newNote
             }),
@@ -31,29 +32,23 @@ export const noteSlice = createApi({
         }),
 
         editNote: builder.mutation({
-            query: ({noteId,updatedNote}) =>({
+            query: ( {noteId, UpdatedNote} ) => ({
                 url: `update_note/${noteId}`,
                 method: "PUT",
-                body: updatedNote
-            }),
-            invalidatesTags:["notes"]
-        }),
-
-        deletNode: builder.mutation(({
-            query: (noteId)=>({
-                url: `delete_note/${noteId}`,
-                method: "DELETE",
+                body: UpdatedNote
             }),
             invalidatesTags: ["notes"]
-        }))
+        }),
 
-
-
-
-
-
-    })
+        deleteNote : builder.mutation({
+            query: (id) => ({
+                url: `delete_note/${id}`,
+                method: "DELETE"
+            })
+        })
 })
 
-export const { useFetchBooksQuery, useAddNoteMutation, useEditNoteMutation , useDeletNodeMutation} = noteSlice;
-export default noteSlice.reducer;
+})
+
+export const { useFetcNotesQuery, useAddNoteMutation, useEditNoteMutation, useDeleteNoteMutation } = NoteSlice
+export default NoteSlice.reducer

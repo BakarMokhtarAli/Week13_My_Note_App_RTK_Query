@@ -1,18 +1,19 @@
 /* eslint-disable react/prop-types */
 
 import { FaEdit, FaTrash } from "react-icons/fa";
-import { useFetchBooksQuery, useDeletNodeMutation } from "../store/NoteSlice"
+
 import { Link } from "react-router-dom";
+
+import { useFetcNotesQuery, useDeleteNoteMutation } from "./Store/api/NoteSlice";
 
 function Notes() {
 
-
-  const { data: allNote=[]} = useFetchBooksQuery()
-
-  const [ deletNode ] = useDeletNodeMutation();
+  const { data: allNote = [] } = useFetcNotesQuery()
+  const [ deleteNote ] = useDeleteNoteMutation()
+  console.log("NOTES", allNote)
 
 const handleDelet = (id) =>{
-  deletNode(id);
+  deleteNote(id)
 }
 
 

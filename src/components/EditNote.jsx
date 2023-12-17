@@ -1,51 +1,46 @@
 import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { useFetchBooksQuery, useEditNoteMutation } from '../store/NoteSlice';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useEditNoteMutation, useFetcNotesQuery } from './Store/api/NoteSlice';
 
 
 const EditNote = () => {
-  const [ current, setCurrent ] = useState({});
-  const params = useParams();
   
-  const initialValues = {
-    title: current.title,
-    content: current.content
-    
-  };
-
+  const [ initialValues, setIntianValues ] = useState({
+    title: "",
+    content: ""
+  })
+  const params = useParams()
+  const navigate = useNavigate()
+  const { data: allNote = [] } = useFetcNotesQuery()
   const [ editNote ] = useEditNoteMutation();
-  const { data: allNote } = useFetchBooksQuery();
-  
 
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (allNote && allNote.length > 0){
-      const notes = allNote.find((note) => note.id === Number(params.id));
-      if (notes) {
-        setCurrent(notes);
-        }
+  useEffect(()=>{
+    const notes = allNote.find((note) => note.id === Number(params.id))     
+    if(notes){
+      setIntianValues(notes)
     }
-
-  }, [allNote, params.id]);
+  },[params.id, allNote])
 
   const validationSchema = Yup.object({
-    title: Yup.string().required('Title is required'),
-    content: Yup.string().required('Content is required'),
-  });
-
-  const handleSubmit = (values) => {
-  editNote({
-    noteId: params.id,
-    updatedNote: values
+    title: Yup.string().required("title is required"),
+    content: Yup.string().required("content is required")
   })
-  .unwrap()
-  .then(()=>{
-    navigate("/")
-  })
-  };
+  
+  function handleSubmit(values){
+      editNote({
+        noteId: Number(params.id),
+        UpdatedNote: values
+      }).unwrap().then(()=>{
+        navigate("/")
+      })
+      setIntianValues({
+        title: "",
+        content: ""
+      })
+  }
+  
 
   return (
     <div className="bg-white p-10 rounded-lg shadow md:w-3/4 mx-auto lg:w-1/2">
